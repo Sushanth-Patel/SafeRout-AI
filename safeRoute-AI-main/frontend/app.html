@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeRoute Command View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="config.js"></script>
+    <script src="main.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="brand-container">
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="brand-mark">
+                <i class="fa-solid fa-shield-heart"></i>
+            </div>
+            <div class="logo-group">
+                <div class="logo-text" style="font-family: 'Orbitron', sans-serif;">SafeRoute</div>
+                <div class="logo-subtitle">Urban Safety Command</div>
+            </div>
+            <div class="divider">|</div>
+            <div class="slogan-container">
+                <div class="slogan-wrapper">
+                    <div class="slogan">Pulse-safe routes with live city signals</div>
+                    <div class="slogan">Fast alerts, bright visibility, smarter choices</div>
+                    <div class="slogan">Crowd reports and emergency guidance in sync</div>
+                    <div class="slogan">Navigate bold, stay aware, arrive stronger</div>
+                    <div class="slogan">Safety intelligence for every turn</div>
+                    <div class="slogan">Pulse-safe routes with live city signals</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <button onclick="openModal('tips-modal')" class="nav-btn outline-btn"><i class="fa-solid fa-shield-halved"></i> <span>Quick Tips</span></button>
+            <button onclick="openModal('helpline-modal')" class="nav-btn outline-btn"><i class="fa-solid fa-phone-volume"></i> <span>Helplines</span></button>
+            <button onclick="openModal('community-modal')" class="nav-btn community-btn"><i class="fa-solid fa-bullhorn"></i> <span>City Feed</span></button>
+            <button onclick="openModal('sos-modal')" class="nav-btn sos-btn"><i class="fa-solid fa-satellite-dish"></i> <span>SOS</span></button>
+            <button onclick="clearAllData()" class="nav-btn clear-btn" title="Clear Data"><i class="fa-solid fa-broom"></i></button>
+            <button onclick="toggleNightMode()" class="nav-btn icon-only" title="Theme"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-mark">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <div>
+                        <div class="sidebar-logo-text" style="font-family: 'Orbitron', sans-serif;">SafeRoute</div>
+                        <div class="logo-subtitle">Field View</div>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" onclick="toggleMobileSidebar()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="search-container">
+                <div class="search-kicker"><i class="fa-solid fa-bolt"></i> Live Planning</div>
+                <h3>Find the safest path with more energy and less guesswork.</h3>
+                <p class="search-copy">Blend route distance with lighting, police presence, hospitals, and community reports before you move.</p>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <strong>AI</strong>
+                        <span>Safety Scan</span>
+                    </div>
+                    <div class="quick-stat">
+                        <strong>250m</strong>
+                        <span>Zone Depth</span>
+                    </div>
+                    <div class="quick-stat">
+                        <strong>Live</strong>
+                        <span>Local Alerts</span>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-location-dot input-icon"></i>
+                    <input type="text" id="source" placeholder="Starting point" value="Hyderabad">
+                    <button onclick="getCurrentLocationForInput()" class="locate-me-btn" title="Use My Current Location">
+                        <i class="fa-solid fa-crosshairs"></i>
+                    </button>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-flag-checkered input-icon"></i>
+                    <input type="text" id="destination" placeholder="Destination" value="Gachibowli">
+                </div>
+
+                <button onclick="findRoutes()" class="primary-btn">
+                    <i class="fa-solid fa-route"></i> Launch Safety Scan
+                </button>
+            </div>
+
+            <div id="routes-container" class="routes-container">
+                <div id="routes-list">
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+                        <p>Drop in a start and destination to unlock high-energy route scoring, safer alternatives, and live community context.</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="map-wrapper">
+            <div class="map-shell">
+                <div class="map-status">
+                    <div class="map-status-live"><span class="live-dot"></span> Route signal active</div>
+                    <strong>City awareness layer</strong>
+                    <span>Crime history, hospitals, police stations, and route confidence stay visible while you navigate.</span>
+                </div>
+                <div class="map-chip-stack">
+                    <div class="map-chip"><i class="fa-solid fa-lightbulb"></i> Lighting</div>
+                    <div class="map-chip"><i class="fa-solid fa-user-shield"></i> Patrol Density</div>
+                    <div class="map-chip"><i class="fa-solid fa-hospital"></i> Emergency Access</div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </main>
+    </div>
+
+    <div id="community-modal" class="modal-overlay" onclick="closeModal(event, 'community-modal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-bullhorn"></i> Community Signal Board</h2>
+                <button class="close-btn" onclick="closeModal(null, 'community-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label">Incident Type</label>
+                <select id="feedback-type" class="modern-select">
+                    <option value="accident">Accident</option>
+                    <option value="danger">Suspicious Activity</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="theft">Theft / Snatching</option>
+                    <option value="traffic">Heavy Traffic</option>
+                    <option value="pothole">Road Damage</option>
+                </select>
+
+                <label class="form-label">Description</label>
+                <textarea id="feedback-desc" rows="3" class="modern-textarea" placeholder="Share what is happening and where it feels risky..."></textarea>
+
+                <button onclick="submitFeedback()" class="primary-btn full-width">Send Community Update</button>
+
+                <div class="separator"><span>Recent Alerts</span></div>
+                <div id="feedback-list" class="feedback-scroll"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sos-modal" class="modal-overlay" onclick="closeModal(event, 'sos-modal')">
+        <div class="modal-content">
+            <div class="modal-header danger-header">
+                <h2><i class="fa-solid fa-triangle-exclamation"></i> Emergency Broadcast</h2>
+                <button class="close-btn" onclick="closeModal(null, 'sos-modal')">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Use this only for a real emergency. SafeRoute will share your live location with admins and prepare nearby emergency assistance.</p>
+                <div class="pulse-container">
+                    <button onclick="sendEmergencyAlert()" class="big-sos-btn">SOS</button>
+                </div>
+                <p class="sos-note">Your current location and saved display name are used only to speed up support when you need it most.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="tips-modal" class="modal-overlay" onclick="closeModal(event, 'tips-modal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-shield-heart"></i> High-Energy Safety Tips</h2>
+                <button class="close-btn" onclick="closeModal(null, 'tips-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul class="tips-list">
+                    <li><i class="fa-solid fa-check check-icon"></i> Share your route and ETA with trusted contacts before heading out.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> Prefer brighter roads and active streets over isolated shortcuts.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> Keep your phone charged and your essential numbers ready to dial.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> Trust instinct fast. If something feels off, change direction immediately.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> Stay aware of vehicle details before entering a cab or rideshare.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> If followed, move toward a shop, hospital, police point, or busy street.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> Keep one ear free in quieter areas so you can hear what is around you.</li>
+                    <li><i class="fa-solid fa-check check-icon"></i> A whistle, torch, or personal alarm can create a fast attention burst.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpline-modal" class="modal-overlay" onclick="closeModal(event, 'helpline-modal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-phone-volume"></i> Fast Helplines</h2>
+                <button class="close-btn" onclick="closeModal(null, 'helpline-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="helpline-grid">
+                    <div class="helpline-card"><span class="hl-number">100</span><span class="hl-label">Police</span></div>
+                    <div class="helpline-card"><span class="hl-number">1091</span><span class="hl-label">Women Helpline</span></div>
+                    <div class="helpline-card"><span class="hl-number">112</span><span class="hl-label">National SOS</span></div>
+                    <div class="helpline-card"><span class="hl-number">102</span><span class="hl-label">Ambulance</span></div>
+                    <div class="helpline-card"><span class="hl-number">101</span><span class="hl-label">Fire</span></div>
+                    <div class="helpline-card"><span class="hl-number">1098</span><span class="hl-label">Child Helpline</span></div>
+                    <div class="helpline-card"><span class="hl-number">1930</span><span class="hl-label">Cyber Crime</span></div>
+                    <div class="helpline-card"><span class="hl-number">1073</span><span class="hl-label">Road Accident</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-overlay">
+        <div class="radar-spinner"></div>
+        <h3 id="loading-text">Charging Route Analysis...</h3>
+        <p>Scanning safety signals, live reports, and emergency access points.</p>
+    </div>
+
+    <div id="emergency-suggestions-modal" class="modal-overlay">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 640px; max-height: 90vh;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff5d73, #ff8a00); color: white;">
+                <h2><i class="fa-solid fa-robot"></i> AI Emergency Guidance</h2>
+                <button class="close-btn" onclick="closeEmergencySuggestionsModal()" style="color: white;">&times;</button>
+            </div>
+            <div class="modal-body" id="emergency-suggestions-body" style="padding: 0;"></div>
+        </div>
+    </div>
+
+    <div id="welcome-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #17c964, #27c2ff); color: #03111f;">
+                <h2><i class="fa-solid fa-user-plus"></i> Join the SafeRoute Pulse</h2>
+            </div>
+            <div class="modal-body text-center">
+                <div style="margin-bottom: 20px;">
+                    <div class="brand-mark" style="margin: 0 auto 16px; width: 64px; height: 64px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <p style="font-size: 1.08rem; color: var(--text-main); margin-bottom: 10px;">
+                        <strong>Personalize your emergency response.</strong>
+                    </p>
+                    <p style="color: var(--text-soft); font-size: 0.92rem;">
+                        Add your name so admins can identify you faster if you ever trigger an alert.
+                    </p>
+                </div>
+
+                <div class="input-wrapper" style="margin-bottom: 20px;">
+                    <i class="fa-solid fa-user input-icon"></i>
+                    <input type="text" id="user-name-input" placeholder="Enter your name" maxlength="50" style="text-align: center; font-size: 1.05rem;">
+                </div>
+
+                <button onclick="saveUserName()" class="primary-btn" style="width: 100%;">
+                    <i class="fa-solid fa-bolt"></i> Continue to SafeRoute
+                </button>
+
+                <p style="font-size: 0.8rem; color: var(--text-faint); margin-top: 14px;">
+                    <i class="fa-solid fa-lock"></i> Stored locally and shared only during emergency workflows.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
