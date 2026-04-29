@@ -99,12 +99,6 @@ Users receive **ranked routes with safety insights**, enabling informed decision
 ---
 ## 🔗 Project Links
 
-### 💻 GitHub Repository  
-Full source code (Frontend + Backend)  
-👉 https://github.com/Sushanth-Patel/SafeRout-AI  
-
----
-
 ### 🌐 Live MVP (User App)  
 Deployed application on Render  
 👉 https://saferoute-frontend.onrender.com  
@@ -113,10 +107,4 @@ Deployed application on Render
 
 ### 📊 Admin Dashboard  
 Real-time monitoring dashboard  
-👉 https://saferoute-frontend.onrender.com/admin  
-## 🔗 Project Access
-<p align="center">
-  <a href="https://saferoute-frontend.onrender.com">
-    <img src="https://img.shields.io/badge/Live MVP-green?style=for-the-badge&logo=google-chrome">
-  </a>
-</p>
+👉 https://saferoute-frontend.onrender.com/admin
